@@ -2,6 +2,7 @@
   "name": "sequelize-api",
   "version": "1.0.0",
   "description": "A simple API using Sequelize and Express with a Hello World endpoint.",
+  "type": "module",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
@@ -19,3 +20,5 @@
   "author": "",
   "license": "ISC"
 }
+
+

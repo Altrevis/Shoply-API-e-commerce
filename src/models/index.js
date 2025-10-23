@@ -1,5 +1,6 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const dotenv = require('dotenv');
+// src/models/index.js
+import { Sequelize, DataTypes } from 'sequelize';
+import dotenv from 'dotenv';
 
 dotenv.config();
 
@@ -26,13 +27,19 @@ const testConnection = async () => {
 
 testConnection();
 
-// import models
-const User = require('./user')(sequelize, DataTypes);
-const Product = require('./product')(sequelize, DataTypes);
-const Order = require('./order')(sequelize, DataTypes);
-const OrderItem = require('./orderItem')(sequelize, DataTypes);
+// Import des modèles
+import userModel from './user.js';
+import productModel from './product.js';
+import orderModel from './order.js';
+import orderItemModel from './orderItem.js';
 
-// associations
+// Initialisation des modèles
+const User = userModel(sequelize, DataTypes);
+const Product = productModel(sequelize, DataTypes);
+const Order = orderModel(sequelize, DataTypes);
+const OrderItem = orderItemModel(sequelize, DataTypes);
+
+// Associations
 User.hasMany(Order, { foreignKey: 'user_id' });
 Order.belongsTo(User, { foreignKey: 'user_id' });
 
@@ -42,12 +49,5 @@ OrderItem.belongsTo(Order, { foreignKey: 'order_id' });
 Product.hasMany(OrderItem, { foreignKey: 'product_id' });
 OrderItem.belongsTo(Product, { foreignKey: 'product_id' });
 
-// export
-module.exports = {
-  sequelize,
-  Sequelize,
-  User,
-  Product,
-  Order,
-  OrderItem,
-};
+// Export ES Modules
+export { sequelize, Sequelize, User, Product, Order, OrderItem };

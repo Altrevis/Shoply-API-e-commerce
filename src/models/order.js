@@ -1,10 +1,10 @@
-module.exports = (sequelize, DataTypes) => {
+export default (sequelize, DataTypes) => {
   const Order = sequelize.define(
     'Order',
     {
       id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
       user_id: { type: DataTypes.INTEGER, allowNull: false },
-      total_price: { type: DataTypes.DECIMAL(10,2), allowNull: false, defaultValue: 0.00 },
+      total_price: { type: DataTypes.DECIMAL(10, 2), allowNull: false, defaultValue: 0.00 },
       status: { type: DataTypes.STRING, allowNull: false, defaultValue: 'pending' },
       created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
     },
@@ -13,6 +13,5 @@ module.exports = (sequelize, DataTypes) => {
       timestamps: false,
     }
   );
-
   return Order;
 };

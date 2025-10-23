@@ -1,4 +1,4 @@
-module.exports = (sequelize, DataTypes) => {
+export default (sequelize, DataTypes) => {
   const Product = sequelize.define(
     'Product',
     {
@@ -14,6 +14,5 @@ module.exports = (sequelize, DataTypes) => {
       timestamps: false,
     }
   );
-
   return Product;
 };

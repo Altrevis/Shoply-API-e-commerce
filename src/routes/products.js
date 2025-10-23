@@ -1,6 +1,17 @@
-const express = require('express');
+import express from 'express';
+
+// Simule un modèle Product pour l'exemple
+const Product = {
+  async findAll() {
+    // données en mémoire, modifie selon tes besoins
+    return [
+      { id: 1, name: 'Produit demo', price: 9.99 },
+      { id: 2, name: 'Autre produit', price: 19.99 }
+    ];
+  }
+};
+
 const router = express.Router();
-const { Product } = require('../models');
 
 router.get('/', async (req, res) => {
   try {
@@ -12,4 +23,4 @@ router.get('/', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
