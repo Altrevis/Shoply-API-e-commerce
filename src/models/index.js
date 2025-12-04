@@ -19,9 +19,10 @@ const sequelize = new Sequelize(
 const testConnection = async () => {
   try {
     await sequelize.authenticate();
-    console.log('Connexion établie');
+    console.log('✅ Connexion à la base de données établie');
   } catch (error) {
-    console.error('Erreur de chargement:', error);
+    console.warn('⚠️ Impossible de se connecter à la base de données. Le serveur continue sans DB.');
+    console.warn(`   Détails: ${error.message}`);
   }
 };
 

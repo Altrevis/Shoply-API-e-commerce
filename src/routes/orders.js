@@ -1,91 +1,5 @@
 import express from 'express';
-
-// Données en mémoire (mock)
-const _products = [
-  { id: 1, name: 'Produit demo', price: 9.99, stock: 10 },
-  { id: 2, name: 'Autre produit', price: 19.99, stock: 5 }
-];
-const _users = [
-  { id: 1, name: 'Alice' },
-  { id: 2, name: 'Bob' }
-];
-const _orders = [];
-const _orderItems = [];
-let _nextOrderId = 1;
-let _nextOrderItemId = 1;
-
-// Mock sequelize transaction
-const sequelize = {
-  async transaction() {
-    return {
-      async commit() {},
-      async rollback() {},
-      LOCK: { UPDATE: 'UPDATE' }
-    };
-  }
-};
-
-// Mock Product
-const Product = {
-  async findByPk(id, options) {
-    const idx = _products.findIndex(p => p.id === Number(id));
-    if (idx === -1) return null;
-    const base = _products[idx];
-    const instance = { ...base };
-    instance.update = async (attrs) => {
-      _products[idx] = { ..._products[idx], ...attrs };
-      return { ..._products[idx] };
-    };
-    return instance;
-  }
-};
-
-// Mock User
-const User = {
-  async findByPk(id, options) {
-    const u = _users.find(x => x.id === Number(id));
-    return u ? { ...u } : null;
-  }
-};
-
-// Mock Order
-const Order = {
-  async create(attrs, options) {
-    const order = { id: _nextOrderId++, ...attrs };
-    _orders.push(order);
-    return { ...order };
-  },
-  async findByPk(id, opts = {}) {
-    const order = _orders.find(o => o.id === Number(id));
-    if (!order) return null;
-    // construire inclusion d'items + produits si demandé
-    const includeItems = (opts.include || []).some(i => i.model === OrderItem || i.model === 'OrderItem');
-    const result = { ...order };
-    if (includeItems) {
-      const items = _orderItems.filter(it => it.order_id === order.id).map(it => ({ ...it }));
-      // gérer include des produits dans items
-      const itemInclude = (opts.include || []).find(i => i.model === OrderItem);
-      if (itemInclude && Array.isArray(itemInclude.include) && itemInclude.include.includes(Product)) {
-        for (const it of items) {
-          const prod = _products.find(p => p.id === Number(it.product_id));
-          it.Product = prod ? { ...prod } : null;
-        }
-      }
-      // nommer la propriété comme Sequelize (OrderItems)
-      result.OrderItems = items;
-    }
-    return result;
-  }
-};
-
-// Mock OrderItem
-const OrderItem = {
-  async create(attrs, options) {
-    const item = { id: _nextOrderItemId++, ...attrs };
-    _orderItems.push(item);
-    return { ...item };
-  }
-};
+import { sequelize, User, Product, Order, OrderItem } from '../models/index.js';
 
 const router = express.Router();
 
@@ -126,7 +40,7 @@ router.post('/', async (req, res) => {
         quantity: it.quantity,
         unit_price: product.price,
       }, { transaction: t });
-      // décrémenter stock (mise à jour du tableau)
+      // décrémenter stock
       await product.update({ stock: product.stock - it.quantity }, { transaction: t });
     }
     await t.commit();

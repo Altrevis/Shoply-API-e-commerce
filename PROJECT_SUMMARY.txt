@@ -1,0 +1,89 @@
+Shoply-API — Résumé du projet
+
+1. Présentation générale
+- Nom du projet : Shoply-API (API e-commerce)
+- Objectif : API REST basique pour gérer utilisateurs, produits, commandes et envoi de notifications/emails.
+- Langage / runtime : Node.js (ES Modules)
+- Framework web : Express
+- ORM : Sequelize (MySQL)
+
+2. Structure du projet (emplacement important)
+- `src/server.js` : point d'entrée, configuration Express + middlewares
+- `src/routes/` : définition des routes par domaine (`products.js`, `users.js`, `orders.js`, `emails.js`, `notification.js`)
+- `src/services/` : intégrations externes (ex: `mailtrapService.js`, `onesignalService.js`)
+- `src/models/` : modèles Sequelize (`user.js`, `product.js`, `order.js`, `orderItem.js`, `index.js` pour l'init)
+- `src/config/database.js` : configuration DB (déploiement multi-environnements)
+- `src/middlewares/` : middlewares d'erreur et 404
+- `package.json` : scripts (`start`, `dev`) et dépendances
+
+3. Principaux choix techniques et raisons
+- Node.js + Express : rapidité de prototypage, large écosystème et simplicité pour REST APIs.
+- Sequelize : ORM mature pour MySQL, facilite la définition des modèles et associations.
+- Mailtrap (Live SMTP) via Nodemailer : permet d'envoyer des emails en test sans risquer d'envoyer des messages réels aux clients ; SMTP Live évite les blocages de domaine durant la phase de test.
+- ES Modules (`type: module`) : code moderne avec `import`/`export`.
+
+4. Variables d'environnement essentielles
+- `PORT` : port d'écoute (par défaut 3000)
+- `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT` : configuration MySQL
+- Mail / SMTP (pour tests) :
+  - `MAILTRAP_SMTP_USER` (ou `MAILTRAP_USER`)
+  - `MAILTRAP_SMTP_PASS` (ou `MAILTRAP_PASSWORD` ou `MAILTRAP_TOKEN`)
+  - `MAILTRAP_SMTP_HOST` (par défaut `live.smtp.mailtrap.io`)
+  - `MAILTRAP_SMTP_PORT` (par défaut `587`)
+  - `MAIL_FROM`, `MAIL_FROM_NAME` (optionnel)
+
+5. Démarrage local
+- Installer dépendances : `npm install`
+- Créer `.env` et remplir les variables ci-dessus
+- Démarrer en production : `npm start` (exécute `node src/server.js`)
+- Démarrer en dev : `npm run dev` (utilise `nodemon`)
+
+6. Endpoints utiles pour tests
+- GET `/` : vérifie que le serveur tourne
+- POST `/emails/test` : envoi d'un email de test
+  - Body JSON : `{ "to": "ton.email@example.com", "subject": "...", "text": "..." }`
+- Routes CRUD pour `products`, `users`, `orders` (voir `src/routes/*.js`)
+
+7. Modèles et relations (haute niveau)
+- `User` : possède plusieurs `Order` (1 -> N)
+- `Order` : appartient à `User`, possède plusieurs `OrderItem`
+- `Product` : a plusieurs `OrderItem` (relation produit-commande via OrderItem)
+- `OrderItem` : pivot contenant quantité, prix au moment de l'achat, etc.
+
+8. Services externes
+- Mailtrap : envoi d'emails de test (configuration SMTP privilégiée)
+- OneSignal (si présent) : notifications push (vérifier `src/services/onesignalService.js`)
+- Mailtrap peut exiger vérification de domaine => utiliser l'expéditeur par défaut (`mailtrap@example.com`) pour contourner temporairement
+
+9. Sécurité et bonnes pratiques
+- Ne pas committer `.env` ni secrets (SMTP password, tokens)
+- Restreindre l'accès à la DB et utiliser des comptes avec permissions minimales
+- Sanitize / valider les entrées (ex: validation email dans `routes/emails.js`)
+
+10. Erreurs courantes et solutions (déjà rencontrées)
+- `ECONNREFUSED 127.0.0.1:3306` : MySQL non démarré ou mauvaise config DB (`DB_HOST`/`DB_PORT`)
+- `Security check pending` (Mailtrap) : domaine non vérifié — utiliser `MAIL_FROM=mailtrap@example.com` ou attendre validation
+- `Missing credentials for "PLAIN"` : identifiants SMTP manquants dans `.env`
+- `Unauthorized` : token/API key invalide ou masquée (vérifier le token complet)
+
+11. Tests et debug
+- Vérifier logs serveur (console) pour messages explicites
+- Pour valider que les env sont chargés, on peut ajouter temporairement `console.log(process.env.MAILTRAP_SMTP_USER ? 'SMTP ok' : 'SMTP missing')` dans `src/services/mailtrapService.js`
+- Utiliser Postman pour frapper `/emails/test` et inspecter les réponses JSON et les messages d'erreur
+
+12. Prochaines améliorations possibles
+- Ajouter validations plus strictes (Joi / express-validator)
+- Ajouter tests unitaires/intégration (Jest / Supertest)
+- Automatiser la migration/seed DB (Sequelize CLI / scripts)
+- Centraliser la configuration via `config` ou `dotenv-flow` pour environnements multiples
+- Ajouter intégration CI (lint, tests) et protection des secrets (Vault / GitHub Secrets)
+
+13. Notes pour la présentation orale
+- Commencer par le besoin fonctionnel (API pour e‑commerce)
+- Montrer l'architecture (Express + Sequelize + services externes)
+- Expliquer les choix (pourquoi Sequelize, pourquoi Mailtrap en test)
+- Démonstration : lancer le serveur local, appeler `/emails/test`, montrer l'inbox Mailtrap
+- Conclure par limitations actuelles et roadmap (tests, CI, sécurité)
+
+---
+Fichier généré automatiquement pour servir de trame lors de la préparation d'une présentation orale ou d'un rapport écrit. Adapte les sections "Prochaines améliorations" et "Choix techniques" selon tes préférences personnelles.
