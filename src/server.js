@@ -1,22 +1,35 @@
-import 'dotenv/config';
 import express from 'express';
 import routes from './routes/index.js';
-import notFound from './middlewares/not-found.js';
-import errorHandler from './middlewares/error-handler.js';
+import oauthRouter from './routes/oauth.js';
+import notificationRouter from './routes/notification.js';
 
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/', routes);
+app.use('/oauth', oauthRouter);
+app.use('/notifications', notificationRouter);
 
-// Middleware pour les routes non trouvées
-app.use(notFound);
+// après les importations
+import { sequelize } from './models/index.js';
 
-// Middleware de gestion d'erreurs
-app.use(errorHandler);
+// ... app.use middlewares, routes, etc.
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Serveur tourne sur le port: ${PORT}`);
-});
+(async () => {
+  try {
+    // sync automatque : crée les tables manquantes ou modifie si necessaire
+    await sequelize.sync({ alter: true });
+    console.log('✅ Sequelize sync completed.');
+  } catch (err) {
+    console.error('❌ Sequelize sync error:', err);
+    process.exit(1);
+  }
+
+  // Démarrer le serveur 
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+})();
+
+
+

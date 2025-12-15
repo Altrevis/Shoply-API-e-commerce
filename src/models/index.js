@@ -19,10 +19,9 @@ const sequelize = new Sequelize(
 const testConnection = async () => {
   try {
     await sequelize.authenticate();
-    console.log('✅ Connexion à la base de données établie');
+    console.log('Connexion établie');
   } catch (error) {
-    console.warn('⚠️ Impossible de se connecter à la base de données. Le serveur continue sans DB.');
-    console.warn(`   Détails: ${error.message}`);
+    console.error('Erreur de chargement:', error);
   }
 };
 
@@ -33,12 +32,30 @@ import userModel from './user.js';
 import productModel from './product.js';
 import orderModel from './order.js';
 import orderItemModel from './orderItem.js';
+import OauthClientModel from './oauthClient.js';
+import OauthTokenModel from './oauthToken.js';
 
 // Initialisation des modèles
 const User = userModel(sequelize, DataTypes);
 const Product = productModel(sequelize, DataTypes);
 const Order = orderModel(sequelize, DataTypes);
 const OrderItem = orderItemModel(sequelize, DataTypes);
+const OauthClient = sequelize.define('OauthClient', {
+  client_id: { type: DataTypes.STRING, unique: true },
+  client_secret: DataTypes.STRING,
+  name: DataTypes.STRING,
+  redirect_uris: DataTypes.TEXT
+}, { tableName: 'oauth_clients', underscored: true });
+
+const OauthAccessToken = sequelize.define('OauthAccessToken', {
+  access_token: { type: DataTypes.STRING, unique: true },
+  access_token_expires_at: DataTypes.DATE,
+}, { tableName: 'oauth_access_tokens', underscored: true });
+
+const OauthRefreshToken = sequelize.define('OauthRefreshToken', {
+  refresh_token: { type: DataTypes.STRING, unique: true },
+  refresh_token_expires_at: DataTypes.DATE,
+}, { tableName: 'oauth_refresh_tokens', underscored: true });
 
 // Associations
 User.hasMany(Order, { foreignKey: 'user_id' });
@@ -50,5 +67,17 @@ OrderItem.belongsTo(Order, { foreignKey: 'order_id' });
 Product.hasMany(OrderItem, { foreignKey: 'product_id' });
 OrderItem.belongsTo(Product, { foreignKey: 'product_id' });
 
+// oauth token relations
+OauthClient.hasMany(OauthAccessToken, { foreignKey: 'client_id' });
+OauthClient.hasMany(OauthRefreshToken, { foreignKey: 'client_id' });
+OauthAccessToken.belongsTo(OauthClient, { foreignKey: 'client_id' });
+OauthRefreshToken.belongsTo(OauthClient, { foreignKey: 'client_id' });
+
+User.hasMany(OauthAccessToken, { foreignKey: 'user_id' });
+User.hasMany(OauthRefreshToken, { foreignKey: 'user_id' });
+OauthAccessToken.belongsTo(User, { foreignKey: 'user_id' });
+OauthRefreshToken.belongsTo(User, { foreignKey: 'user_id' });
+
 // Export ES Modules
-export { sequelize, Sequelize, User, Product, Order, OrderItem };
+export { sequelize, Sequelize, User, Product, Order, OrderItem, OauthClient, OauthAccessToken,
+  OauthRefreshToken };
