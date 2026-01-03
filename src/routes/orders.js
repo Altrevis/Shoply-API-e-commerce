@@ -1,6 +1,5 @@
 import express from 'express';
 import oauthAuthenticate from '../middlewares/oauthAuthenticate.js';
-import OrderController from '../controllers/orderController.js';
 
 // Données en mémoire (mock)
 const _products = [
@@ -90,7 +89,6 @@ const OrderItem = {
 };
 
 const router = express.Router();
-router.post('/', oauthAuthenticate(), OrderController.create);
 
 router.post('/', async (req, res) => {
   const { userId, items } = req.body;

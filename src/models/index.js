@@ -68,13 +68,13 @@ Product.hasMany(OrderItem, { foreignKey: 'product_id' });
 OrderItem.belongsTo(Product, { foreignKey: 'product_id' });
 
 // oauth token relations
-OauthClient.hasMany(OauthAccessToken, { foreignKey: 'client_id' });
-OauthClient.hasMany(OauthRefreshToken, { foreignKey: 'client_id' });
+OauthClient.hasMany(OauthAccessToken, { foreignKey: 'client_id', onDelete: 'CASCADE' });
+OauthClient.hasMany(OauthRefreshToken, { foreignKey: 'client_id', onDelete: 'CASCADE' });
 OauthAccessToken.belongsTo(OauthClient, { foreignKey: 'client_id' });
 OauthRefreshToken.belongsTo(OauthClient, { foreignKey: 'client_id' });
 
-User.hasMany(OauthAccessToken, { foreignKey: 'user_id' });
-User.hasMany(OauthRefreshToken, { foreignKey: 'user_id' });
+User.hasMany(OauthAccessToken, { foreignKey: 'user_id', onDelete: 'CASCADE' });
+User.hasMany(OauthRefreshToken, { foreignKey: 'user_id', onDelete: 'CASCADE' });
 OauthAccessToken.belongsTo(User, { foreignKey: 'user_id' });
 OauthRefreshToken.belongsTo(User, { foreignKey: 'user_id' });
 
