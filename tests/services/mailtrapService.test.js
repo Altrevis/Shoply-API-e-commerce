@@ -1,6 +1,5 @@
 import { jest } from '@jest/globals';
 
-// Mock nodemailer before importing the service
 const mockSendMail = jest.fn();
 const mockTransport = {
   sendMail: mockSendMail
@@ -17,7 +16,6 @@ describe('Mailtrap Service', () => {
   let sendEmail;
 
   beforeAll(async () => {
-    // Set up environment variables before importing
     process.env.MAILTRAP_SMTP_USER = 'test-user';
     process.env.MAILTRAP_SMTP_PASS = 'test-pass';
     process.env.MAILTRAP_SMTP_HOST = 'sandbox.smtp.mailtrap.io';
@@ -25,7 +23,6 @@ describe('Mailtrap Service', () => {
     process.env.MAIL_FROM = 'test@example.com';
     process.env.MAIL_FROM_NAME = 'Test Sender';
 
-    // Import the service after mocking
     const module = await import('../../src/services/mailtrapService.js');
     sendEmail = module.sendEmail;
   });

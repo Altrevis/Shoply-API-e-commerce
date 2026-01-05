@@ -1,4 +1,3 @@
-// src/middlewares/oauthAuthenticate.js
 import oauth from '../auth/oauthServer.js';
 
 export default function oauthAuthenticate() {
@@ -8,7 +7,6 @@ export default function oauthAuthenticate() {
 
     try {
       const token = await oauth.authenticate(request, response);
-      // token.user contains { id: userId }
       req.oauth = { token, user: token.user };
       next();
     } catch (err) {

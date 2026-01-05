@@ -41,7 +41,6 @@ export const sendEmail = async (to, subject, text, category = 'Integration Test'
       to,
       subject,
       text,
-      // nodemailer does not use `category` by default; keep it in headers if needed
       headers: { 'X-Category': category },
     });
     console.log('✅ Email sent:', info.messageId || info);

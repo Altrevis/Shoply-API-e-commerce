@@ -1,4 +1,3 @@
-// src/models/oauthClient.js
 export default (sequelize, DataTypes) => {
   const OauthClient = sequelize.define('OauthClient', {
     client_id: { type: DataTypes.STRING, unique: true, allowNull: false },

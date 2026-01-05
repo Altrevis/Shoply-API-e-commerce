@@ -1,4 +1,3 @@
-// src/models/oauthToken.js
 export default (sequelize, DataTypes) => {
   const OauthToken = sequelize.define('OauthToken', {
     access_token: { type: DataTypes.STRING, unique: true },
