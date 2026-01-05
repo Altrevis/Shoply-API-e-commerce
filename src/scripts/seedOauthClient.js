@@ -1,4 +1,3 @@
-// src/scripts/seedOauthClient.js
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -13,7 +12,6 @@ async function main() {
     const clientId = 'test_client_id';
     const clientSecretPlain = 'test_client_secret';
 
-    // Hash client secret (optionnel mais conseillé)
     const hashed = await bcrypt.hash(clientSecretPlain, 10);
 
     const [client, created] = await OauthClient.findOrCreate({

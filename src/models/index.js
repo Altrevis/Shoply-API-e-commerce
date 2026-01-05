@@ -1,4 +1,3 @@
-// src/models/index.js
 import { Sequelize, DataTypes } from 'sequelize';
 import dotenv from 'dotenv';
 
@@ -27,7 +26,6 @@ const testConnection = async () => {
 
 testConnection();
 
-// Import des modèles
 import userModel from './user.js';
 import productModel from './product.js';
 import orderModel from './order.js';
@@ -35,7 +33,6 @@ import orderItemModel from './orderItem.js';
 import OauthClientModel from './oauthClient.js';
 import OauthTokenModel from './oauthToken.js';
 
-// Initialisation des modèles
 const User = userModel(sequelize, DataTypes);
 const Product = productModel(sequelize, DataTypes);
 const Order = orderModel(sequelize, DataTypes);
@@ -57,7 +54,6 @@ const OauthRefreshToken = sequelize.define('OauthRefreshToken', {
   refresh_token_expires_at: DataTypes.DATE,
 }, { tableName: 'oauth_refresh_tokens', underscored: true });
 
-// Associations
 User.hasMany(Order, { foreignKey: 'user_id' });
 Order.belongsTo(User, { foreignKey: 'user_id' });
 
@@ -67,7 +63,6 @@ OrderItem.belongsTo(Order, { foreignKey: 'order_id' });
 Product.hasMany(OrderItem, { foreignKey: 'product_id' });
 OrderItem.belongsTo(Product, { foreignKey: 'product_id' });
 
-// oauth token relations
 OauthClient.hasMany(OauthAccessToken, { foreignKey: 'client_id', onDelete: 'CASCADE' });
 OauthClient.hasMany(OauthRefreshToken, { foreignKey: 'client_id', onDelete: 'CASCADE' });
 OauthAccessToken.belongsTo(OauthClient, { foreignKey: 'client_id' });
@@ -78,6 +73,5 @@ User.hasMany(OauthRefreshToken, { foreignKey: 'user_id', onDelete: 'CASCADE' });
 OauthAccessToken.belongsTo(User, { foreignKey: 'user_id' });
 OauthRefreshToken.belongsTo(User, { foreignKey: 'user_id' });
 
-// Export ES Modules
 export { sequelize, Sequelize, User, Product, Order, OrderItem, OauthClient, OauthAccessToken,
   OauthRefreshToken };

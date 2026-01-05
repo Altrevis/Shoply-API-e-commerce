@@ -3,7 +3,7 @@ export default (sequelize, DataTypes) => {
     'Order',
     {
       id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-      user_id: { type: DataTypes.INTEGER, allowNull: false },
+      user_id: { type: DataTypes.INTEGER, allowNull: true },
       total_price: { type: DataTypes.DECIMAL(10, 2), allowNull: false, defaultValue: 0.00 },
       status: { type: DataTypes.STRING, allowNull: false, defaultValue: 'pending' },
       created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
@@ -11,6 +11,8 @@ export default (sequelize, DataTypes) => {
     {
       tableName: 'orders',
       timestamps: false,
+      createdAt: 'created_at',
+      updatedAt: false
     }
   );
   return Order;
