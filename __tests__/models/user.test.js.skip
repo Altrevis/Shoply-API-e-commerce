@@ -1,0 +1,267 @@
+import { jest } from '@jest/globals';
+import { Sequelize } from 'sequelize';
+import bcrypt from 'bcrypt';
+
+// Mock bcrypt
+jest.mock('bcrypt');
+
+describe('User Model', () => {
+  let sequelize;
+  let User;
+  let userFactory;
+
+  beforeAll(async () => {
+    // Create an in-memory SQLite database for testing
+    sequelize = new Sequelize('sqlite::memory:', {
+      logging: false
+    });
+
+    // Define the User model using the factory function
+    const DataTypes = Sequelize.DataTypes;
+    const module = await import('../../src/models/user.js');
+    userFactory = module.default;
+    User = userFactory(sequelize, DataTypes);
+
+    // Sync the model with the database
+    await sequelize.sync({ force: true });
+  });
+
+  afterAll(async () => {
+    await sequelize.close();
+  });
+
+  beforeEach(async () => {
+    // Clear the table before each test
+    await User.destroy({ where: {}, truncate: true });
+    jest.clearAllMocks();
+  });
+
+  describe('Model Definition', () => {
+    it('devrait avoir les bons champs', () => {
+      const attributes = User.getAttributes();
+      
+      expect(attributes).toHaveProperty('id');
+      expect(attributes).toHaveProperty('email');
+      expect(attributes).toHaveProperty('password');
+      expect(attributes).toHaveProperty('name');
+      expect(attributes).toHaveProperty('role');
+    });
+
+    it('devrait avoir id comme clé primaire', () => {
+      const attributes = User.getAttributes();
+      expect(attributes.id.primaryKey).toBe(true);
+    });
+
+    it('devrait avoir email comme champ obligatoire', () => {
+      const attributes = User.getAttributes();
+      expect(attributes.email.allowNull).toBe(false);
+    });
+
+    it('devrait utiliser le bon nom de table', () => {
+      expect(User.tableName).toBe('users');
+    });
+  });
+
+  describe('Password Hashing', () => {
+    it('devrait hasher le mot de passe avant la création', async () => {
+      // Arrange
+      bcrypt.hash.mockResolvedValue('hashed_password');
+
+      const userData = {
+        email: 'test@example.com',
+        password: 'plain_password',
+        name: 'Test User',
+        role: 'user'
+      };
+
+      // Act
+      const user = await User.create(userData);
+
+      // Assert
+      expect(bcrypt.hash).toHaveBeenCalledWith('plain_password', 10);
+      expect(user.password).toBe('hashed_password');
+    });
+
+    it('devrait hasher le mot de passe avant la mise à jour', async () => {
+      // Arrange
+      bcrypt.hash
+        .mockResolvedValueOnce('initial_hashed_password')
+        .mockResolvedValueOnce('updated_hashed_password');
+
+      const user = await User.create({
+        email: 'test@example.com',
+        password: 'initial_password',
+        name: 'Test User',
+        role: 'user'
+      });
+
+      // Act
+      await user.update({ password: 'new_password' });
+
+      // Assert
+      expect(bcrypt.hash).toHaveBeenCalledTimes(2);
+      expect(bcrypt.hash).toHaveBeenLastCalledWith('new_password', 10);
+      expect(user.password).toBe('updated_hashed_password');
+    });
+
+    it('ne devrait pas hasher le mot de passe si non modifié', async () => {
+      // Arrange
+      bcrypt.hash.mockResolvedValue('hashed_password');
+
+      const user = await User.create({
+        email: 'test@example.com',
+        password: 'password',
+        name: 'Test User',
+        role: 'user'
+      });
+
+      jest.clearAllMocks();
+
+      // Act - Update without changing password
+      await user.update({ name: 'Updated Name' });
+
+      // Assert
+      expect(bcrypt.hash).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('CRUD Operations', () => {
+    it('devrait créer un utilisateur avec succès', async () => {
+      // Arrange
+      bcrypt.hash.mockResolvedValue('hashed_password');
+
+      const userData = {
+        email: 'john@example.com',
+        password: 'password123',
+        name: 'John Doe',
+        role: 'admin'
+      };
+
+      // Act
+      const user = await User.create(userData);
+
+      // Assert
+      expect(user.email).toBe('john@example.com');
+      expect(user.name).toBe('John Doe');
+      expect(user.role).toBe('admin');
+      expect(user.id).toBeDefined();
+    });
+
+    it('devrait retrouver un utilisateur par id', async () => {
+      // Arrange
+      bcrypt.hash.mockResolvedValue('hashed_password');
+
+      const createdUser = await User.create({
+        email: 'find@example.com',
+        password: 'password',
+        name: 'Find Me',
+        role: 'user'
+      });
+
+      // Act
+      const foundUser = await User.findByPk(createdUser.id);
+
+      // Assert
+      expect(foundUser).toBeDefined();
+      expect(foundUser.email).toBe('find@example.com');
+      expect(foundUser.name).toBe('Find Me');
+    });
+
+    it('devrait retrouver un utilisateur par email', async () => {
+      // Arrange
+      bcrypt.hash.mockResolvedValue('hashed_password');
+
+      await User.create({
+        email: 'search@example.com',
+        password: 'password',
+        name: 'Search User',
+        role: 'user'
+      });
+
+      // Act
+      const user = await User.findOne({ where: { email: 'search@example.com' } });
+
+      // Assert
+      expect(user).toBeDefined();
+      expect(user.email).toBe('search@example.com');
+    });
+
+    it('devrait mettre à jour un utilisateur', async () => {
+      // Arrange
+      bcrypt.hash.mockResolvedValue('hashed_password');
+
+      const user = await User.create({
+        email: 'update@example.com',
+        password: 'password',
+        name: 'Old Name',
+        role: 'user'
+      });
+
+      // Act
+      await user.update({ name: 'New Name', role: 'admin' });
+
+      // Assert
+      expect(user.name).toBe('New Name');
+      expect(user.role).toBe('admin');
+    });
+
+    it('devrait supprimer un utilisateur', async () => {
+      // Arrange
+      bcrypt.hash.mockResolvedValue('hashed_password');
+
+      const user = await User.create({
+        email: 'delete@example.com',
+        password: 'password',
+        name: 'Delete Me',
+        role: 'user'
+      });
+
+      const userId = user.id;
+
+      // Act
+      await user.destroy();
+
+      // Assert
+      const deletedUser = await User.findByPk(userId);
+      expect(deletedUser).toBeNull();
+    });
+  });
+
+  describe('Validation', () => {
+    it('devrait échouer si l\'email est manquant', async () => {
+      // Arrange
+      const userData = {
+        password: 'password',
+        name: 'Test User',
+        role: 'user'
+      };
+
+      // Act & Assert
+      await expect(User.create(userData)).rejects.toThrow();
+    });
+
+    it('devrait échouer si le mot de passe est manquant', async () => {
+      // Arrange
+      const userData = {
+        email: 'test@example.com',
+        name: 'Test User',
+        role: 'user'
+      };
+
+      // Act & Assert
+      await expect(User.create(userData)).rejects.toThrow();
+    });
+
+    it('devrait échouer si le nom est manquant', async () => {
+      // Arrange
+      const userData = {
+        email: 'test@example.com',
+        password: 'password',
+        role: 'user'
+      };
+
+      // Act & Assert
+      await expect(User.create(userData)).rejects.toThrow();
+    });
+  });
+});
