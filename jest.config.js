@@ -6,11 +6,11 @@ export default {
   transform: {},
   
   // Setup file
-  setupFilesAfterEnv: ['./__tests__/setup.js'],
+  setupFilesAfterEnv: ['./tests/setup.js'],
 
   // Test file patterns
   testMatch: [
-    '**/__tests__/**/*.test.js',
+    '**/tests/**/*.test.js',
     '**/?(*.)+(spec|test).js'
   ],
 
