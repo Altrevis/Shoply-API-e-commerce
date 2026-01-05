@@ -21,10 +21,14 @@ function generateToken() {
  */
 
 export async function getClient(clientId, clientSecret) {
-  const where = { client_id: clientId };
-  if (clientSecret) where.client_secret = clientSecret;
-  const client = await OauthClient.findOne({ where });
+  const client = await OauthClient.findOne({ where: { client_id: clientId } });
   if (!client) return null;
+
+  // Verify client_secret if provided (for token endpoint)
+  if (clientSecret) {
+    const isMatch = await bcrypt.compare(clientSecret, client.client_secret);
+    if (!isMatch) return null;
+  }
 
   // oauth2-server expects an object with id and grants array
   return {

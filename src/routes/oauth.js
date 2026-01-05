@@ -1,5 +1,6 @@
 // src/routes/oauth.js
 import express from 'express';
+import OAuth2Server from 'oauth2-server';
 import oauth from '../auth/oauthServer.js';
 
 const router = express.Router();
@@ -8,8 +9,13 @@ const router = express.Router();
 
 // Token endpoint
 router.post('/token', async (req, res, next) => {
-  const request = new oauth.Request(req);
-  const response = new oauth.Response(res);
+  // Support both JSON and x-www-form-urlencoded
+  const request = new OAuth2Server.Request({
+    ...req,
+    body: req.body,
+    headers: { ...req.headers, 'content-type': 'application/x-www-form-urlencoded' }
+  });
+  const response = new OAuth2Server.Response(res);
 
   try {
     const token = await oauth.token(request, response);
@@ -21,8 +27,13 @@ router.post('/token', async (req, res, next) => {
 
 // Optional: revoke token endpoint (logout)
 router.post('/revoke', async (req, res, next) => {
-  const request = new oauth.Request(req);
-  const response = new oauth.Response(res);
+  // Support both JSON and x-www-form-urlencoded
+  const request = new OAuth2Server.Request({
+    ...req,
+    body: req.body,
+    headers: { ...req.headers, 'content-type': 'application/x-www-form-urlencoded' }
+  });
+  const response = new OAuth2Server.Response(res);
   try {
     const result = await oauth.revoke(request, response);
     res.json({ revoked: result });
