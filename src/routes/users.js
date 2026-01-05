@@ -1,36 +1,5 @@
 import express from 'express';
-
-const _users = [
-  { id: 1, name: 'Alice', email: 'alice@example.com' },
-  { id: 2, name: 'Bob', email: 'bob@example.com' }
-];
-let _nextId = 3;
-
-const User = {
-  async findAll() {
-    return _users.map(u => ({ ...u }));
-  },
-  async findByPk(id) {
-    const idx = _users.findIndex(u => u.id === Number(id));
-    if (idx === -1) return null;
-    // retourner une "instance" avec méthodes update/destroy compatibles
-    const instance = { ..._users[idx] };
-    instance.update = async (attrs) => {
-      _users[idx] = { ..._users[idx], ...attrs };
-      return { ..._users[idx] };
-    };
-    instance.destroy = async () => {
-      _users.splice(idx, 1);
-      return;
-    };
-    return instance;
-  },
-  async create(attrs) {
-    const newUser = { id: _nextId++, ...attrs };
-    _users.push(newUser);
-    return { ...newUser };
-  }
-};
+import { User } from '../models/index.js';
 
 const router = express.Router();
 
@@ -57,9 +26,11 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', async (req, res) => {
   try {
-    const { name, email } = req.body;
-    if (!name || !email) return res.status(400).json({ error: 'name et email requis' });
-    const created = await User.create({ name, email });
+    const { name, email, password, role } = req.body;
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: 'name, email et password requis' });
+    }
+    const created = await User.create({ name, email, password, role: role || 'user' });
     res.status(201).json(created);
   } catch (err) {
     console.error(err);
