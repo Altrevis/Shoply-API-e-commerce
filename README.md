@@ -1,108 +1,175 @@
-# Shoply-API — Installation des dépendances
+# Shoply API - E-commerce Backend
 
-Rapide guide pour installer les node_modules du projet.
+API REST complète pour une application e-commerce avec gestion des utilisateurs, produits, commandes, paiements, notifications et emails.
 
-## Installation (local)
+## 📋 Table des matières
 
-Avec npm :
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Démarrage](#démarrage)
+- [Documentation API](#documentation-api)
+- [Tests](#tests)
+
+---
+
+## 🚀 Installation
+
+### Prérequis
+
+- Node.js (v14 ou supérieur)
+- MySQL (v5.7 ou supérieur)
+- npm ou yarn
+
+### Installation des dépendances
+
 ```bash
 npm install
 ```
 
-Configuration du fichier `.env` (à la racine du projet) :
-```env
-MAILTRAP_TOKEN=
-DB_NAME=Shoply-e-commerce
-DB_USER=
-DB_PASSWORD=
-DB_HOST=localhost
-DB_PORT=
-PORT=3000
-MAILTRAP_SMTP_USER=
-MAILTRAP_SMTP_PASS=
-MAIL_FROM=mailtrap@example.com
-MAIL_FROM_NAME="Shoply API"
-ONESIGNAL_APP_ID=
-ONESIGNAL_REST_KEY=
+---
+
+## ⚙️ Configuration
+
+### Base de données
+
+1. Créez une base de données MySQL :
+```sql
+CREATE DATABASE Shoply-e-commerce;
 ```
 
-## Démarrage du serveur
+2. Importez le schéma de base de données :
+```bash
+mysql -u votre_utilisateur -p Shoply-e-commerce < db/Shoply-e-commerce.sql
+```
+
+### Variables d'environnement
+
+Créez un fichier `.env` à la racine du projet avec les variables suivantes :
+
+```env
+# Database Configuration
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=Shoply-e-commerce
+DB_USER=votre_utilisateur
+DB_PASSWORD=votre_mot_de_passe
+
+# Server Configuration
+PORT=3000
+
+# Mailtrap SMTP Configuration
+MAILTRAP_SMTP_USER=votre_email_mailtrap
+MAILTRAP_SMTP_PASS=votre_mot_de_passe_mailtrap
+MAILTRAP_SMTP_HOST=live.smtp.mailtrap.io
+MAILTRAP_SMTP_PORT=587
+
+# Email Configuration
+MAIL_FROM=noreply@shoply.com
+MAIL_FROM_NAME="Shoply API"
+
+# OneSignal Configuration (optionnel)
+ONESIGNAL_APP_ID=votre_app_id
+ONESIGNAL_REST_KEY=votre_rest_key
+```
+
+> **Note :** Remplacez toutes les valeurs par vos propres identifiants.
+
+---
+
+## 🎯 Démarrage
+
+### Mode développement (avec nodemon)
 
 ```bash
 npm run dev
 ```
 
-================================================================================
-## SHOPLY API - GUIDE DE TEST POSTMAN
-================================================================================
+### Mode production
+
+```bash
+npm start
+```
+
+Le serveur démarre par défaut sur `http://localhost:3000`
+
+---
+
+## 📚 Documentation API
 
 **BASE URL:** `http://localhost:3000`
 
+### 1. Route racine
+
+#### Hello World
+```http
+GET /
+```
+
+**Réponse :** `"Hello World"`
+
 ---
 
-### 1. ROUTE RACINE
-
-**GET** `http://localhost:3000/`
-- Body: Aucun
-- Réponse: `"Hello World"`
-
----
-
-### 2. USERS (Utilisateurs)
+### 2. Utilisateurs (Users)
 
 #### Récupérer tous les utilisateurs
-**GET** `http://localhost:3000/users`
-- Body: Aucun
+```http
+GET /users
+```
 
 #### Récupérer un utilisateur par ID
-**GET** `http://localhost:3000/users/1`
-- Body: Aucun
+```http
+GET /users/:id
+```
+
+**Exemple :** `GET /users/1`
 
 #### Créer un utilisateur
-**POST** `http://localhost:3000/users`
-- Content-Type: `application/json`
-- Body:
-```json
+```http
+POST /users
+Content-Type: application/json
+
 {
-  "name": "Test User",
-  "email": "test@example.com",
+  "name": "John Doe",
+  "email": "john@example.com",
   "password": "password123",
   "role": "user"
 }
 ```
 
 #### Modifier un utilisateur
-**PUT** `http://localhost:3000/users/1`
-- Content-Type: `application/json`
-- Body:
-```json
+```http
+PUT /users/:id
+Content-Type: application/json
+
 {
-  "name": "Updated User",
-  "email": "updated@example.com"
+  "name": "John Updated",
+  "email": "john.updated@example.com"
 }
 ```
 
 #### Supprimer un utilisateur
-**DELETE** `http://localhost:3000/users/1`
-- Body: Aucun
+```http
+DELETE /users/:id
+```
 
 ---
 
-### 3. PRODUCTS (Produits)
+### 3. Produits (Products)
 
 #### Récupérer tous les produits
-**GET** `http://localhost:3000/products`
-- Body: Aucun
+```http
+GET /products
+```
 
 ---
 
-### 4. ORDERS (Commandes)
+### 4. Commandes (Orders)
 
 #### Créer une commande
-**POST** `http://localhost:3000/orders`
-- Content-Type: `application/json`
-- Body:
-```json
+```http
+POST /orders
+Content-Type: application/json
+
 {
   "userId": 1,
   "items": [
@@ -120,30 +187,48 @@ npm run dev
 
 ---
 
-### 5. NOTIFICATIONS (OneSignal)
+### 5. Paiements (Payments)
 
-#### Envoyer une notification test
-**POST** `http://localhost:3000/notifications/test`
-- Content-Type: `application/json`
-- Body:
-```json
+#### Traiter un paiement
+```http
+POST /payments
+Content-Type: application/json
+
 {
-  "playerId": "Votre player ID"
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 2
+    }
+  ]
 }
 ```
 
-**Note:** Le `playerId` doit être un UUID valide OneSignal.  
-Vous pouvez obtenir un vrai Player ID depuis votre dashboard OneSignal.
+---
+
+### 6. Notifications (OneSignal)
+
+#### Envoyer une notification test
+```http
+POST /notifications/test
+Content-Type: application/json
+
+{
+  "playerId": "550e8400-e29b-41d4-a716-446655440000"
+}
+```
+
+> **Note :** Le `playerId` doit être un UUID valide OneSignal. Vous pouvez obtenir un Player ID réel depuis votre dashboard OneSignal.
 
 ---
 
-### 6. EMAILS (Mailtrap)
+### 7. Emails (Mailtrap)
 
 #### Envoyer un email test
-**POST** `http://localhost:3000/emails/test`
-- Content-Type: `application/json`
-- Body:
-```json
+```http
+POST /emails/test
+Content-Type: application/json
+
 {
   "to": "destinataire@example.com",
   "subject": "Test d'email",
@@ -152,28 +237,25 @@ Vous pouvez obtenir un vrai Player ID depuis votre dashboard OneSignal.
 }
 ```
 
-**Note:** Assurez-vous que vos credentials Mailtrap sont configurés dans le `.env`
+> **Note :** Assurez-vous que vos credentials Mailtrap sont configurés dans le `.env`
 
 ---
 
-### 7. OAUTH (Authentification)
+### 8. OAuth (Authentification)
 
 #### Obtenir un token d'accès
-**POST** `http://localhost:3000/oauth/token`
+```http
+POST /oauth/token
+Content-Type: application/x-www-form-urlencoded
 
-**Option 1** - Content-Type: `application/x-www-form-urlencoded`
-- Body (x-www-form-urlencoded):
-```
-grant_type=password
-username=your_username
-password=your_password
-client_id=your_client_id
-client_secret=your_client_secret
+grant_type=password&username=your_username&password=your_password&client_id=your_client_id&client_secret=your_client_secret
 ```
 
-**Option 2** - Content-Type: `application/json`
-- Body:
-```json
+**Ou avec JSON :**
+```http
+POST /oauth/token
+Content-Type: application/json
+
 {
   "grant_type": "password",
   "username": "your_username",
@@ -185,9 +267,82 @@ client_secret=your_client_secret
 
 ---
 
-## NOTES IMPORTANTES
+## 🧪 Tests
 
-1. **Démarrage:** Assurez-vous que le serveur est démarré avec `npm run dev`
+### Lancer tous les tests
+```bash
+npm test
+```
+
+### Mode watch (tests en continu)
+```bash
+npm run test:watch
+```
+
+### Tests avec couverture de code
+```bash
+npm run test:coverage
+```
+
+---
+
+## 📝 Notes importantes
+
+- **Base de données :** Vérifiez que MySQL est démarré et accessible
+- **OneSignal :** Utilisez un vrai Player ID UUID depuis votre dashboard OneSignal (format: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`)
+- **Mailtrap :** Configurez vos identifiants SMTP dans le `.env`
+- **Variables d'environnement :** Toutes les variables du `.env` doivent être configurées pour un fonctionnement optimal
+- **OAuth :** Exécutez le script de seed pour créer un client OAuth : `node src/scripts/seedOauthClient.js`
+
+---
+
+## 🛠️ Technologies utilisées
+
+- **Node.js** - Runtime JavaScript
+- **Express** - Framework web
+- **Sequelize** - ORM pour MySQL
+- **MySQL** - Base de données
+- **OAuth2 Server** - Authentification
+- **Mailtrap** - Service d'envoi d'emails
+- **OneSignal** - Service de notifications push
+- **Jest** - Framework de tests
+- **Nodemon** - Rechargement automatique en développement
+
+---
+
+## 📂 Structure du projet
+
+```
+Shoply-API-e-commerce/
+├── db/                     # Scripts SQL
+├── models/                 # Modèles Sequelize
+├── src/
+│   ├── auth/              # Configuration OAuth
+│   ├── config/            # Configuration base de données
+│   ├── controllers/       # Contrôleurs des routes
+│   ├── middlewares/       # Middlewares Express
+│   ├── models/            # Modèles métier
+│   ├── routes/            # Définition des routes
+│   ├── scripts/           # Scripts utilitaires
+│   ├── services/          # Services externes (Mailtrap, OneSignal)
+│   └── server.js          # Point d'entrée de l'application
+├── tests/                 # Tests unitaires et d'intégration
+├── .env                   # Variables d'environnement (à créer)
+├── package.json           # Dépendances et scripts
+└── README.md              # Ce fichier
+```
+
+---
+
+## 📄 Licence
+
+ISC
+
+---
+
+## 👨‍💻 Auteur
+
+Shoply API - Projet e-commerce backend
 
 2. **Tests OneSignal:**
    - Utilisez un vrai Player ID de votre dashboard OneSignal
