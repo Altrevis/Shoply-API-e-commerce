@@ -268,14 +268,14 @@ Content-Type: application/json
 npm test
 ```
 
+### Test classique
+```bash
+npm run test
+```
+
 ### Mode watch (tests en continu)
 ```bash
 npm run test:watch
-```
-
-### Tests avec couverture de code
-```bash
-npm run test:coverage
 ```
 
 ---
