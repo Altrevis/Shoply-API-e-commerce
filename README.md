@@ -248,7 +248,11 @@ Content-Type: application/json
 POST /oauth/token
 Content-Type: application/x-www-form-urlencoded
 
-grant_type=password&username=your_username&password=your_password&client_id=your_client_id&client_secret=your_client_secret
+grant_type=password
+username=your_username
+password=your_password
+client_id=your_client_id
+client_secret=your_client_secret
 ```
 
 **Ou avec JSON :**
@@ -333,31 +337,3 @@ Shoply-API-e-commerce/
 ```
 
 ---
-
-## 📄 Licence
-
-ISC
-
----
-
-## 👨‍💻 Auteur
-
-Shoply API - Projet e-commerce backend
-
-2. **Tests OneSignal:**
-   - Utilisez un vrai Player ID de votre dashboard OneSignal
-   - Format UUID valide: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
-   - Exemple: `550e8400-e29b-41d4-a716-446655440000`
-
-3. **Tests Mailtrap:**
-   - Vérifiez que `MAILTRAP_SMTP_USER` et `MAILTRAP_SMTP_PASS` sont définis dans `.env`
-   - L'email "to" peut être n'importe quelle adresse valide
-
-4. **Variables d'environnement requises (.env):**
-   - `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`
-   - `MAILTRAP_SMTP_USER`, `MAILTRAP_SMTP_PASS`
-   - `ONESIGNAL_APP_ID`, `ONESIGNAL_REST_KEY` (optionnel pour mode simulation)
-
-5. **Base de données:**
-   - Les utilisateurs sont maintenant stockés dans la base de données MySQL
-   - Les données persistent entre les redémarrages du serveur
