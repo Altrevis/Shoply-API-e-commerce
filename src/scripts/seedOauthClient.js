@@ -14,7 +14,7 @@ async function main() {
 
     const hashed = await bcrypt.hash(clientSecretPlain, 10);
 
-    const [client, created] = await OauthClient.findOrCreate({
+    let [client, created] = await OauthClient.findOrCreate({
       where: { client_id: clientId },
       defaults: {
         client_id: clientId,
@@ -23,6 +23,11 @@ async function main() {
         grants: 'password,refresh_token'
       }
     });
+
+    // Ensure grants is set (in case it was null)
+    if (!client.grants) {
+      await client.update({ grants: 'password,refresh_token' });
+    }
 
     if (created) console.log('Client créé:', clientId);
     else console.log('Client déjà existant:', clientId);

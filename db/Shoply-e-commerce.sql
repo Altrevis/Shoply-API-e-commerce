@@ -49,6 +49,7 @@ CREATE TABLE `oauth_clients` (
   `client_secret` varchar(255) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
   `redirect_uris` text,
+  `grants` varchar(255) DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
