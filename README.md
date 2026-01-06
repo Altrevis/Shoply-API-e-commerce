@@ -2,16 +2,6 @@
 
 API REST complète pour une application e-commerce avec gestion des utilisateurs, produits, commandes, paiements, notifications et emails.
 
-## 📋 Table des matières
-
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Démarrage](#démarrage)
-- [Documentation API](#documentation-api)
-- [Tests](#tests)
-
----
-
 ## 🚀 Installation
 
 ### Prérequis
